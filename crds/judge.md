@@ -30,8 +30,7 @@ metedata:
     policy: stg_20210810
 spec:
   inputShareListRef:  input_share_name    # input share yaml中metedata定义的name
-  stgs_logical_op: and / or
-  stgs：   # 这里定义list，不同策略是and / or操作
+  and_stgs:   # 这里定义list，不同策略是and操作
     - stg_op: gt
       left_type: 1         # 1=纯数值 2=基本指标 3=指标微调 4=形态指标 ，支持后续扩展
       left_value: ["close", "*", 0.95]  # 数组形式，基于type灵活计算，left和right的type一致也可以不一致
@@ -42,6 +41,21 @@ spec:
       left_value: ["close", "*", 0.95]  # 数组形式，基于type灵活计算，left和right的type一致也可以不一致
       right_type: 1
       right_value: 1
+  or_stgs:   # 这里定义list，不同策略是or操作
+    - stg_op: gt
+      left_type: 1         # 1=纯数值 2=基本指标 3=指标微调 4=形态指标 ，支持后续扩展
+      left_value: ["close", "*", 0.95]  # 数组形式，基于type灵活计算，left和right的type一致也可以不一致
+      right_type: 1
+      right_value: 1
+    - stg_op: gt
+      left_type: 1         # 1=纯数值 2=基本指标 3=指标微调 4=形态指标 ，支持后续扩展
+      left_value: ["close", "*", 0.95]  # 数组形式，基于type灵活计算，left和right的type一致也可以不一致
+      right_type: 1
+      right_value: 1
+  filter_stgs:
+    filter_type: 1         # 1=纯数值 2=基本指标 3=指标微调
+    filter_value: ["pe_ttm"]  # 数组形式，基于type灵活计算
+    
 ```
 
 
@@ -54,8 +68,23 @@ metedata:
     policy: stg_20210810
 spec:
   inputShareListRef:  input_share_name    # input share yaml中metedata定义的name
-  stgs_logical_op: and / or
-  stgs：   # 这里定义list，不同策略是or操作
+  and_stgs:   # 这里定义list，不同策略是and操作
+    - stg_op: gt
+      left_type: 1         # 1=纯数值 2=基本指标 3=指标微调 4=形态指标 ，支持后续扩展
+      left_value: ["close", "*", 0.95]  # 数组形式，基于type灵活计算，left和right的type一致也可以不一致
+      right_type: 1
+      right_value: 1
+    - stg_op: gt
+      left_type: 1         # 1=纯数值 2=基本指标 3=指标微调 4=形态指标 ，支持后续扩展
+      left_value: ["close", "*", 0.95]  # 数组形式，基于type灵活计算，left和right的type一致也可以不一致
+      right_type: 1
+      right_value: 1
+  or_stgs:   # 这里定义list，不同策略是or操作
+    - stg_op: gt
+      left_type: 1         # 1=纯数值 2=基本指标 3=指标微调 4=形态指标 ，支持后续扩展
+      left_value: ["close", "*", 0.95]  # 数组形式，基于type灵活计算，left和right的type一致也可以不一致
+      right_type: 1
+      right_value: 1
     - stg_op: gt
       left_type: 1         # 1=纯数值 2=基本指标 3=指标微调 4=形态指标 ，支持后续扩展
       left_value: ["close", "*", 0.95]  # 数组形式，基于type灵活计算，left和right的type一致也可以不一致
@@ -74,6 +103,23 @@ metedata:
 spec:
   inputShareListRef:  input_share_name    # input share yaml中metedata定义的name
   stgs：   # 这里定义list，不同策略是or操作
-    hold_share_num：3
+    buy_price: close / pre_close   # 支持自定义，程序中通过case选择使用的买入价格
+    sale_price: close / pre_close   # 支持自定义，程序中通过case选择使用的卖出价格
+```
+
+
+```yaml
+ApiVersion: StgConfig/v1
+Kind: StgConfig   # 交易策略的初始化设置，支持反复
+metedata:
+  name: stg-config
+  labels:
+    policy: stg_20210810
+spec:
+  hold_share_num：3
+  init_money: 100000
+  start_date: 20210101
+  end_date: 20210810
     
 ```
+
