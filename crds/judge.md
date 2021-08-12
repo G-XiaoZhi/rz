@@ -61,7 +61,7 @@ spec:
 
 ```yaml
 ApiVersion: judge/v1
-Kind: SHIndexJudge   # 判断大盘状态
+Kind: IndexJudge   # 判断大盘状态
 metedata:
   name: sh_index_state
   labels:
@@ -102,21 +102,21 @@ metedata:
     policy: stg_20210810
 spec:
   inputShareListRef:  input_share_name    # input share yaml中metedata定义的name
-  stgs：   # 这里定义list，不同策略是or操作
+  stgs:   # 这里定义list，不同策略是or操作
     buy_price: close / pre_close   # 支持自定义，程序中通过case选择使用的买入价格
     sale_price: close / pre_close   # 支持自定义，程序中通过case选择使用的卖出价格
+    buy_num_stg: most / one    # 股票买入数量策略，一次买入最大 / 一次最多一个
 ```
 
 
 ```yaml
-ApiVersion: StgConfig/v1
+ApiVersion: stgConfig/v1
 Kind: StgConfig   # 交易策略的初始化设置，支持反复
 metedata:
   name: stg-config
   labels:
     policy: stg_20210810
 spec:
-  hold_share_num：3
   init_money: 100000
   start_date: 20210101
   end_date: 20210810
