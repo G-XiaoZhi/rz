@@ -21,7 +21,7 @@ spec:
 
 
 ```yaml
-ApiVersion: judge/v1
+ApiVersion: judge/v0.1
 Kind: ShareJudge
 metedata:
   name: buy-avgs-ma5_ma250
@@ -58,6 +58,60 @@ spec:
     
 ```
 
+```yaml
+ApiVersion: judge/v1
+Kind: ShareJudge
+metedata:
+  name: buy-avgs-ma5_ma250
+  labels:
+    action: buy
+    policy: stg_20210810
+spec:
+  strategies:
+    - stg_name: xxx
+      stg_op: gt
+      left_type: 1         # 1=纯数值 2=基本指标 3=指标微调 4=形态指标 ，支持后续扩展
+      left_value: ["close", "*", 0.95]  # 数组形式，基于type灵活计算，left和right的type一致也可以不一致
+      right_type: 1
+      right_value: 1
+    - stg_name: yyy
+      stg_op: gt
+      left_type: 1         # 1=纯数值 2=基本指标 3=指标微调 4=形态指标 ，支持后续扩展
+      left_value: ["close", "*", 0.95]  # 数组形式，基于type灵活计算，left和right的type一致也可以不一致
+      right_type: 1
+      right_value: 1
+    - stg_name: zzz
+      stg_op: gt
+      left_type: 1         # 1=纯数值 2=基本指标 3=指标微调 4=形态指标 ，支持后续扩展
+      left_value: ["close", "*", 0.95]  # 数组形式，基于type灵活计算，left和right的type一致也可以不一致
+      right_type: 1
+      right_value: 1
+  judgePolicy:
+    - policyName: firstJudge
+      operattion: And
+      stgs: [xxx,yyy]
+      policy: []
+      finishPolicy: IfTrue | IfFalse | NotSure | End  # 依据这个策略的结果判断是否返回，也就是后续策略是否有继续执行的必要
+    - policyName: secondeJudge
+      operattion: Or
+      stgs: [zzz]
+      policy: [firstJudge]
+      finishPolicy: IfTrue | IfFalse | NotSure | End  # 依据这个策略的结果判断是否返回，也就是后续策略是否有继续执行的必要
+
+  # 这里的策略是，先计算firstPolicy里的stg [xxx & yyy]，这里可以设置finishPolicy=IfTrue
+  # 然后计算secondPolicy里的stg和policy，zzz or firstPolicy
+  policyContainer: [firstPolicy, secondPolicy]
+
+  # examples:
+  # finish表示判断结束，逻辑组合减少中间不必要的计算，从而支持各种复杂的组合计算
+  # stgs: [xx, yy, zz, ww, tt]
+  # 策略组合 xx & yy & zz & ww & tt， 一个judge，设置stgs 和 operation=and，finish=end
+  # 策略组合 xx | yy | zz | ww | tt，一个judge，设置stgs 和 operation=or，finish=end
+  # 策略组合 （xx | yy | zz） & （ ww | tt），两个judge，first: stgs=xx,yy,zz,op=or,finish=iffalse; second:stgs=ww,tt,op=or,finish=End;（这里其实不需要再做 first & second，因first为false直接返回了，直接返回second的结果即可）
+  # 策略组合 （xx & yy ） | （ zz & ww & tt)，两个judge，first: stgs=xx,yy,op=and,finish=iftrue; second:stgs=zz,ww,tt,op=and,finish=End（这里其实不需要再做 first|second，因first为true直接返回了，直接返回second的结果即可）
+  # 策略组合 xx &((yy & zz) | (ww & tt))，四个judge，first: stgs=xx,op=and,finish=iffalse; second:stgs=[yy,zz],op=and,finish=NotSure,third:stgs=[ww,tt],op=and,finish=NotSure;fourth:policy=[second,third],op=or,finish=End（这里其实不需要再做 xx & fourth，因为xx肯定为true，然后直接返回fourth的结果就是最终的结果）
+```
+
 
 ```yaml
 ApiVersion: judge/v1
@@ -92,7 +146,6 @@ spec:
       right_value: 1
 ```
 
-
 ```yaml
 ApiVersion: trade/v1
 Kind: ShareTrade   # 交易系统的参数定义，买入和卖出
@@ -122,4 +175,5 @@ spec:
   end_date: 20210810
     
 ```
+
 
